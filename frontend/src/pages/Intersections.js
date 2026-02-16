@@ -147,15 +147,29 @@ const Intersections = () => {
                   {int.location.lat.toFixed(4)}, {int.location.lng.toFixed(4)}
                 </p>
               </div>
-              <span
-                className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                  int.status === 'online'
-                    ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
-                    : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
-                }`}
-              >
-                {int.status}
-              </span>
+              <div className="flex flex-col items-end space-y-2">
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                    int.status === 'online'
+                      ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                      : int.status === 'maintenance'
+                      ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                      : 'bg-zinc-700/10 text-zinc-500 border border-zinc-700/20'
+                  }`}
+                >
+                  {int.status}
+                </span>
+                <select
+                  data-testid={`status-select-${int.id}`}
+                  value={int.status}
+                  onChange={(e) => handleUpdateStatus(int.id, e.target.value)}
+                  className="bg-zinc-900 border-zinc-800 text-zinc-100 text-xs rounded-sm px-2 py-1 focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="online">Online</option>
+                  <option value="maintenance">Maintenance</option>
+                  <option value="offline">Offline</option>
+                </select>
+              </div>
             </div>
 
             <div className="space-y-3 mb-4">
