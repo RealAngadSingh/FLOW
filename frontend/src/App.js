@@ -8,6 +8,7 @@ import Vehicles from './pages/Vehicles';
 import Incidents from './pages/Incidents';
 import VideoFeeds from './pages/VideoFeeds';
 import Analytics from './pages/Analytics';
+import Schedules from './pages/Schedules';
 import './App.css';
 
 function App() {
