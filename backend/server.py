@@ -570,6 +570,32 @@ async def get_hourly_analytics(hours: int = 24):
     
     return {"analytics": formatted}
 
+@api_router.get("/settings")
+async def get_settings():
+    """Get system settings"""
+    settings = await db.system_settings.find_one({"id": "system_settings"}, {"_id": 0})
+    if not settings:
+        # Return default settings
+        return {"id": "system_settings", "signal_cycle_interval": 30}
+    return settings
+
+@api_router.patch("/settings")
+async def update_settings(signal_cycle_interval: int):
+    """Update system settings"""
+    if signal_cycle_interval < 5 or signal_cycle_interval > 300:
+        raise HTTPException(status_code=400, detail="Cycle interval must be between 5 and 300 seconds")
+    
+    await db.system_settings.update_one(
+        {"id": "system_settings"},
+        {"$set": {"signal_cycle_interval": signal_cycle_interval}},
+        upsert=True
+    )
+    
+    logger.info(f"Updated signal cycle interval to {signal_cycle_interval} seconds")
+    
+    settings = await db.system_settings.find_one({"id": "system_settings"}, {"_id": 0})
+    return settings
+
 @api_router.websocket("/ws/live")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
