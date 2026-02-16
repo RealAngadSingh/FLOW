@@ -212,8 +212,44 @@ class CreateSchedule(BaseModel):
     active: bool = True
 
 async def get_cycle_interval():
-    """Get current signal cycle interval from database"""
+    """Get current signal cycle interval from database or active schedule"""
     settings = await db.system_settings.find_one({"id": "system_settings"}, {"_id": 0})
+    
+    # Check if manual override is active
+    if settings and settings.get("manual_override", False):
+        return settings.get("signal_cycle_interval", 30)
+    
+    # Check for active schedule
+    from datetime import datetime
+    now = datetime.now(timezone.utc)
+    current_day = now.weekday()  # 0=Monday, 6=Sunday
+    current_time = now.strftime("%H:%M")
+    
+    # Find matching schedules for current day and time
+    schedules = await db.schedules.find({
+        "active": True,
+        "days_of_week": current_day
+    }, {"_id": 0}).to_list(100)
+    
+    matching_schedules = []
+    for schedule in schedules:
+        start = schedule["start_time"]
+        end = schedule["end_time"]
+        
+        # Handle schedules that span midnight
+        if start <= end:
+            if start <= current_time <= end:
+                matching_schedules.append(schedule)
+        else:  # Spans midnight
+            if current_time >= start or current_time <= end:
+                matching_schedules.append(schedule)
+    
+    # Return highest priority matching schedule
+    if matching_schedules:
+        matching_schedules.sort(key=lambda x: x["priority"], reverse=True)
+        return matching_schedules[0]["cycle_interval"]
+    
+    # Default to settings or 30
     if settings:
         return settings.get("signal_cycle_interval", 30)
     return 30
