@@ -10,6 +10,8 @@ const Intersections = () => {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [signalState, setSignalState] = useState('');
+  const [cycleInterval, setCycleInterval] = useState(30);
+  const [showSettings, setShowSettings] = useState(false);
 
   const fetchIntersections = async () => {
     try {
@@ -22,8 +24,18 @@ const Intersections = () => {
     }
   };
 
+  const fetchSettings = async () => {
+    try {
+      const response = await axios.get(`${API}/settings`);
+      setCycleInterval(response.data.signal_cycle_interval);
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+    }
+  };
+
   useEffect(() => {
     fetchIntersections();
+    fetchSettings();
   }, []);
 
   const handleUpdateSignal = async (intId) => {
@@ -36,6 +48,28 @@ const Intersections = () => {
       fetchIntersections();
     } catch (error) {
       console.error('Error updating intersection:', error);
+    }
+  };
+
+  const handleUpdateStatus = async (intId, newStatus) => {
+    try {
+      await axios.patch(`${API}/intersections/${intId}`, {
+        status: newStatus,
+      });
+      fetchIntersections();
+    } catch (error) {
+      console.error('Error updating status:', error);
+    }
+  };
+
+  const handleUpdateCycleInterval = async () => {
+    try {
+      await axios.patch(`${API}/settings?signal_cycle_interval=${cycleInterval}`);
+      setShowSettings(false);
+      alert('Cycle interval updated successfully!');
+    } catch (error) {
+      console.error('Error updating cycle interval:', error);
+      alert('Error updating cycle interval');
     }
   };
 
