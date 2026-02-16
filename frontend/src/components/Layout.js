@@ -14,6 +14,7 @@ const Layout = () => {
     { path: '/incidents', label: 'INCIDENTS', icon: AlertTriangle },
     { path: '/feeds', label: 'VIDEO FEEDS', icon: Video },
     { path: '/analytics', label: 'ANALYTICS', icon: BarChart3 },
+    { path: '/schedules', label: 'SCHEDULES', icon: Settings },
   ];
 
   return (
