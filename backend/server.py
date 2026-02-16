@@ -28,11 +28,60 @@ logging.basicConfig(level=logging.INFO)
 
 active_connections: List[WebSocket] = []
 
+# Signal cycle logic
+async def cycle_traffic_signals():
+    """Automatically cycle through traffic signal states"""
+    signal_cycle = {
+        "green-ns": "yellow-ns",
+        "yellow-ns": "red-ns",
+        "red-ns": "green-ew",
+        "green-ew": "yellow-ew",
+        "yellow-ew": "red-ew",
+        "red-ew": "green-ns"
+    }
+    
+    while True:
+        try:
+            await asyncio.sleep(30)  # Update every 30 seconds
+            
+            intersections = await db.intersections.find({"status": "online"}, {"_id": 0}).to_list(100)
+            
+            for intersection in intersections:
+                current_state = intersection.get("current_signal_state", "green-ns")
+                next_state = signal_cycle.get(current_state, "green-ns")
+                
+                await db.intersections.update_one(
+                    {"id": intersection["id"]},
+                    {"$set": {"current_signal_state": next_state}}
+                )
+                logger.info(f"Updated {intersection['name']}: {current_state} -> {next_state}")
+            
+        except Exception as e:
+            logger.error(f"Error in signal cycling: {e}")
+            await asyncio.sleep(5)
+
+signal_task = None
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    global signal_task
     logger.info("Starting SmartFlow AI Traffic Management System")
     await seed_demo_data()
+    
+    # Start background task for signal cycling
+    signal_task = asyncio.create_task(cycle_traffic_signals())
+    logger.info("Started automatic signal cycling")
+    
     yield
+    
+    # Cancel background task on shutdown
+    if signal_task:
+        signal_task.cancel()
+        try:
+            await signal_task
+        except asyncio.CancelledError:
+            pass
+    
     logger.info("Shutting down")
     client.close()
 
