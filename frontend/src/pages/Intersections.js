@@ -9,7 +9,9 @@ const Intersections = () => {
   const [intersections, setIntersections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
+  const [editingTimingId, setEditingTimingId] = useState(null);
   const [signalState, setSignalState] = useState('');
+  const [timingData, setTimingData] = useState({ green: 45, yellow: 5, red: 50 });
   const [cycleInterval, setCycleInterval] = useState(30);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -48,6 +50,20 @@ const Intersections = () => {
       fetchIntersections();
     } catch (error) {
       console.error('Error updating intersection:', error);
+    }
+  };
+
+  const handleUpdateTiming = async (intId) => {
+    try {
+      await axios.patch(`${API}/intersections/${intId}`, {
+        signal_timing: timingData,
+      });
+      setEditingTimingId(null);
+      fetchIntersections();
+      alert('Signal timing updated successfully!');
+    } catch (error) {
+      console.error('Error updating timing:', error);
+      alert('Error updating timing');
     }
   };
 
