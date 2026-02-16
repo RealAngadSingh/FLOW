@@ -189,6 +189,27 @@ class SystemSettings(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = "system_settings"
     signal_cycle_interval: int = 30  # seconds
+    manual_override: bool = False  # True if manually set, False if schedule-controlled
+
+class Schedule(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    days_of_week: List[int]  # 0=Monday, 6=Sunday
+    start_time: str  # HH:MM format
+    end_time: str  # HH:MM format
+    cycle_interval: int  # seconds
+    priority: int = 1  # Higher priority overrides lower
+    active: bool = True
+
+class CreateSchedule(BaseModel):
+    name: str
+    days_of_week: List[int]
+    start_time: str
+    end_time: str
+    cycle_interval: int
+    priority: int = 1
+    active: bool = True
 
 async def get_cycle_interval():
     """Get current signal cycle interval from database"""
