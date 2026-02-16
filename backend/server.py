@@ -320,6 +320,11 @@ async def update_intersection(intersection_id: str, update: UpdateIntersection):
     if not update_data:
         raise HTTPException(status_code=400, detail="No update data provided")
     
+    # Get current state before update
+    current = await db.intersections.find_one({"id": intersection_id}, {"_id": 0})
+    if not current:
+        raise HTTPException(status_code=404, detail="Intersection not found")
+    
     result = await db.intersections.update_one(
         {"id": intersection_id},
         {"$set": update_data}
@@ -329,6 +334,29 @@ async def update_intersection(intersection_id: str, update: UpdateIntersection):
         raise HTTPException(status_code=404, detail="Intersection not found")
     
     updated = await db.intersections.find_one({"id": intersection_id}, {"_id": 0})
+    
+    # Broadcast manual update to WebSocket clients
+    if active_connections and "current_signal_state" in update_data:
+        message = json.dumps({
+            "type": "manual_signal_update",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "updates": [{
+                "intersection_id": intersection_id,
+                "name": current["name"],
+                "from": current.get("current_signal_state"),
+                "to": update_data["current_signal_state"]
+            }]
+        })
+        disconnected = []
+        for connection in active_connections:
+            try:
+                await connection.send_text(message)
+            except:
+                disconnected.append(connection)
+        
+        for conn in disconnected:
+            active_connections.remove(conn)
+    
     return updated
 
 @api_router.get("/vehicles/detections")
