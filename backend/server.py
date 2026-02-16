@@ -43,7 +43,9 @@ async def cycle_traffic_signals():
     
     while True:
         try:
-            await asyncio.sleep(30)  # Update every 30 seconds
+            # Get current cycle interval from settings
+            cycle_interval = await get_cycle_interval()
+            await asyncio.sleep(cycle_interval)
             
             intersections = await db.intersections.find({"status": "online"}, {"_id": 0}).to_list(100)
             
