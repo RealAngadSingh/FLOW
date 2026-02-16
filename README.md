@@ -70,6 +70,32 @@ A comprehensive AI-powered traffic management platform for real-time monitoring,
 - Feed status and resolution
 - FPS and last frame timestamp
 
+## 🚦 Traffic Signal System
+
+### Automatic Signal Cycling
+Traffic signals automatically cycle through states every 30 seconds:
+- **North-South Direction**: green-ns → yellow-ns → red-ns
+- **East-West Direction**: green-ew → yellow-ew → red-ew
+
+This simulates realistic traffic light behavior and keeps the system dynamic.
+
+### Manual Signal Control
+Operators can override automatic cycling:
+1. Navigate to the Intersections page
+2. Click "ADJUST SIGNAL" on any intersection
+3. Select desired signal state from dropdown
+4. Click "Save" to apply immediately
+
+Manual changes are broadcast to all connected clients in real-time.
+
+### Signal States
+- `green-ns` / `green-ew`: North-South or East-West green light
+- `yellow-ns` / `yellow-ew`: Caution phase before red
+- `red-ns` / `red-ew`: Stop phase
+
+### WebSocket Broadcasting
+When signals change (automatically or manually), updates are pushed to connected WebSocket clients for instant UI updates.
+
 ## 🚀 Getting Started
 
 ### Prerequisites
