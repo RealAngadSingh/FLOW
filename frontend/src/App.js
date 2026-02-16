@@ -23,6 +23,7 @@ function App() {
           <Route path="incidents" element={<Incidents />} />
           <Route path="feeds" element={<VideoFeeds />} />
           <Route path="analytics" element={<Analytics />} />
+          <Route path="schedules" element={<Schedules />} />
         </Route>
       </Routes>
     </BrowserRouter>
