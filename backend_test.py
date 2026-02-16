@@ -197,7 +197,8 @@ class TrafficSystemTester:
         if self.failed_tests:
             self.log("\n🔍 FAILED TESTS DETAILS:")
             for failure in self.failed_tests:
-                self.log(f"  - {failure['test']}: {failure.get('error', f'Expected {failure.get('expected')}, got {failure.get('actual')}')}")
+                error_msg = failure.get('error', f"Expected {failure.get('expected')}, got {failure.get('actual')}")
+                self.log(f"  - {failure['test']}: {error_msg}")
         
         return self.tests_passed == self.tests_run
 
