@@ -47,6 +47,7 @@ async def cycle_traffic_signals():
             
             intersections = await db.intersections.find({"status": "online"}, {"_id": 0}).to_list(100)
             
+            updates = []
             for intersection in intersections:
                 current_state = intersection.get("current_signal_state", "green-ns")
                 next_state = signal_cycle.get(current_state, "green-ns")
@@ -55,7 +56,31 @@ async def cycle_traffic_signals():
                     {"id": intersection["id"]},
                     {"$set": {"current_signal_state": next_state}}
                 )
+                
+                updates.append({
+                    "intersection_id": intersection["id"],
+                    "name": intersection["name"],
+                    "from": current_state,
+                    "to": next_state
+                })
                 logger.info(f"Updated {intersection['name']}: {current_state} -> {next_state}")
+            
+            # Broadcast updates to connected WebSocket clients
+            if active_connections and updates:
+                message = json.dumps({
+                    "type": "signal_update",
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "updates": updates
+                })
+                disconnected = []
+                for connection in active_connections:
+                    try:
+                        await connection.send_text(message)
+                    except:
+                        disconnected.append(connection)
+                
+                for conn in disconnected:
+                    active_connections.remove(conn)
             
         except Exception as e:
             logger.error(f"Error in signal cycling: {e}")
