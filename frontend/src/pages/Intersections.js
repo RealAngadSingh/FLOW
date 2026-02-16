@@ -79,10 +79,59 @@ const Intersections = () => {
 
   return (
     <div className="space-y-6" data-testid="intersections-page">
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight uppercase text-zinc-400">Intersection Control</h2>
-        <p className="text-sm text-zinc-500 mt-1">Manage traffic signals and coordination</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight uppercase text-zinc-400">Intersection Control</h2>
+          <p className="text-sm text-zinc-500 mt-1">Manage traffic signals and coordination</p>
+        </div>
+        <button
+          data-testid="settings-btn"
+          onClick={() => setShowSettings(!showSettings)}
+          className="bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 rounded-sm uppercase tracking-wide text-xs px-4 py-2 flex items-center"
+        >
+          <Settings className="w-4 h-4 mr-2" />
+          Cycle Settings
+        </button>
       </div>
+
+      {/* Settings Panel */}
+      {showSettings && (
+        <div className="bg-zinc-950/50 backdrop-blur-sm border border-zinc-800 rounded-sm p-6">
+          <h3 className="text-xl font-medium text-zinc-100 mb-4">Signal Cycle Settings</h3>
+          <div className="flex items-center space-x-4">
+            <div className="flex-1">
+              <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 block mb-2">
+                Cycle Interval (seconds)
+              </label>
+              <input
+                data-testid="cycle-interval-input"
+                type="number"
+                min="5"
+                max="300"
+                value={cycleInterval}
+                onChange={(e) => setCycleInterval(parseInt(e.target.value))}
+                className="w-full bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 rounded-sm px-3 py-2 text-sm font-mono"
+              />
+              <p className="text-xs text-zinc-500 mt-1">Time between automatic signal changes (5-300 seconds)</p>
+            </div>
+            <div className="flex space-x-2">
+              <button
+                data-testid="save-cycle-interval-btn"
+                onClick={handleUpdateCycleInterval}
+                className="bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-sm uppercase tracking-wide text-xs px-6 py-2 mt-6"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => setShowSettings(false)}
+                className="bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 rounded-sm uppercase tracking-wide text-xs px-6 py-2 mt-6"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {intersections.map((int) => (
