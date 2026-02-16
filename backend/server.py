@@ -204,6 +204,15 @@ async def seed_demo_data():
     
     logger.info("Seeding demo data...")
     
+    # Seed system settings
+    existing_settings = await db.system_settings.count_documents({})
+    if existing_settings == 0:
+        await db.system_settings.insert_one({
+            "id": "system_settings",
+            "signal_cycle_interval": 30
+        })
+        logger.info("Seeded system settings")
+    
     intersections_data = [
         {"id": "int-001", "name": "Main St & 1st Ave", "location": {"lat": 40.7580, "lng": -73.9855}, "current_signal_state": "green-ns", "signal_timing": {"green": 45, "yellow": 5, "red": 50}, "coordination_mode": "adaptive", "status": "online"},
         {"id": "int-002", "name": "Broadway & 5th St", "location": {"lat": 40.7589, "lng": -73.9851}, "current_signal_state": "red-ns", "signal_timing": {"green": 40, "yellow": 5, "red": 45}, "coordination_mode": "adaptive", "status": "online"},
