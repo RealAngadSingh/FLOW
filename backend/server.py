@@ -268,9 +268,68 @@ async def seed_demo_data():
     if existing_settings == 0:
         await db.system_settings.insert_one({
             "id": "system_settings",
-            "signal_cycle_interval": 30
+            "signal_cycle_interval": 30,
+            "manual_override": False
         })
         logger.info("Seeded system settings")
+    
+    # Seed default schedules
+    existing_schedules = await db.schedules.count_documents({})
+    if existing_schedules == 0:
+        default_schedules = [
+            {
+                "id": "schedule-001",
+                "name": "Morning Rush Hour",
+                "days_of_week": [0, 1, 2, 3, 4],  # Monday-Friday
+                "start_time": "07:00",
+                "end_time": "09:00",
+                "cycle_interval": 20,
+                "priority": 2,
+                "active": True
+            },
+            {
+                "id": "schedule-002",
+                "name": "Evening Rush Hour",
+                "days_of_week": [0, 1, 2, 3, 4],  # Monday-Friday
+                "start_time": "17:00",
+                "end_time": "19:00",
+                "cycle_interval": 20,
+                "priority": 2,
+                "active": True
+            },
+            {
+                "id": "schedule-003",
+                "name": "Weekday Off-Peak",
+                "days_of_week": [0, 1, 2, 3, 4],  # Monday-Friday
+                "start_time": "09:00",
+                "end_time": "17:00",
+                "cycle_interval": 45,
+                "priority": 1,
+                "active": True
+            },
+            {
+                "id": "schedule-004",
+                "name": "Weekend Schedule",
+                "days_of_week": [5, 6],  # Saturday-Sunday
+                "start_time": "00:00",
+                "end_time": "23:59",
+                "cycle_interval": 50,
+                "priority": 1,
+                "active": True
+            },
+            {
+                "id": "schedule-005",
+                "name": "Night Time",
+                "days_of_week": [0, 1, 2, 3, 4, 5, 6],  # All days
+                "start_time": "22:00",
+                "end_time": "06:00",
+                "cycle_interval": 60,
+                "priority": 1,
+                "active": True
+            }
+        ]
+        await db.schedules.insert_many(default_schedules)
+        logger.info("Seeded default schedules")
     
     intersections_data = [
         {"id": "int-001", "name": "Main St & 1st Ave", "location": {"lat": 40.7580, "lng": -73.9855}, "current_signal_state": "green-ns", "signal_timing": {"green": 45, "yellow": 5, "red": 50}, "coordination_mode": "adaptive", "status": "online"},
