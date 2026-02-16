@@ -141,6 +141,69 @@ const Analytics = () => {
           </ResponsiveContainer>
         </div>
       </div>
+
+      {/* Schedule Performance Section */}
+      <div className="bg-zinc-950/50 backdrop-blur-sm border border-zinc-800 rounded-sm p-6">
+        <h3 className="text-xl font-medium text-zinc-100 mb-6">Schedule Effectiveness Analytics</h3>
+        {schedulePerformance.length === 0 ? (
+          <div className="text-center py-8 text-zinc-500">No schedule performance data available</div>
+        ) : (
+          <div className="space-y-4">
+            {schedulePerformance.map((schedule) => (
+              <div
+                key={schedule.schedule_id}
+                className="border border-zinc-800 rounded-sm p-4 hover:border-zinc-700 transition-colors"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h4 className="text-lg font-medium text-zinc-100 mb-1">{schedule.schedule_name}</h4>
+                    <p className="text-xs text-zinc-500">Cycle Interval: {schedule.cycle_interval}s</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold font-mono text-blue-400">{schedule.efficiency_score}%</div>
+                    <div className="text-xs text-zinc-500">Efficiency Score</div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-4 gap-4 mb-3">
+                  <div>
+                    <div className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1">Avg Speed</div>
+                    <div className="text-lg font-mono text-zinc-100">{schedule.avg_speed} mph</div>
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1">Avg Queue</div>
+                    <div className="text-lg font-mono text-zinc-100">{schedule.avg_queue_length}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1">Throughput</div>
+                    <div className="text-lg font-mono text-zinc-100">{schedule.total_throughput}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1">Status</div>
+                    <div className={`text-sm font-bold ${
+                      schedule.efficiency_score > 70 ? 'text-emerald-400' :
+                      schedule.efficiency_score > 50 ? 'text-amber-400' : 'text-red-400'
+                    }`}>
+                      {schedule.recommendation}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="w-full bg-zinc-900 rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full transition-all ${
+                      schedule.efficiency_score > 70 ? 'bg-emerald-500' :
+                      schedule.efficiency_score > 50 ? 'bg-amber-500' : 'bg-red-500'
+                    }`}
+                    style={{ width: `${schedule.efficiency_score}%` }}
+                  ></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
