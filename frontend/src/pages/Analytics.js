@@ -8,16 +8,19 @@ const API = `${BACKEND_URL}/api`;
 const Analytics = () => {
   const [hourlyData, setHourlyData] = useState([]);
   const [vehicleStats, setVehicleStats] = useState([]);
+  const [schedulePerformance, setSchedulePerformance] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchAnalytics = async () => {
     try {
-      const [hourlyRes, vehicleRes] = await Promise.all([
+      const [hourlyRes, vehicleRes, scheduleRes] = await Promise.all([
         axios.get(`${API}/analytics/hourly?hours=24`),
         axios.get(`${API}/vehicles/stats`),
+        axios.get(`${API}/analytics/schedule-performance`),
       ]);
       setHourlyData(hourlyRes.data.analytics);
       setVehicleStats(vehicleRes.data.stats);
+      setSchedulePerformance(scheduleRes.data.performance);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching analytics:', error);
