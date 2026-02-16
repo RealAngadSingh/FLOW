@@ -696,21 +696,132 @@ async def get_settings():
     return settings
 
 @api_router.patch("/settings")
-async def update_settings(signal_cycle_interval: int):
+async def update_settings(signal_cycle_interval: int, manual_override: Optional[bool] = None):
     """Update system settings"""
     if signal_cycle_interval < 5 or signal_cycle_interval > 300:
         raise HTTPException(status_code=400, detail="Cycle interval must be between 5 and 300 seconds")
     
+    update_data = {"signal_cycle_interval": signal_cycle_interval}
+    if manual_override is not None:
+        update_data["manual_override"] = manual_override
+    else:
+        update_data["manual_override"] = True  # Manual change enables override
+    
     await db.system_settings.update_one(
         {"id": "system_settings"},
-        {"$set": {"signal_cycle_interval": signal_cycle_interval}},
+        {"$set": update_data},
         upsert=True
     )
     
-    logger.info(f"Updated signal cycle interval to {signal_cycle_interval} seconds")
+    logger.info(f"Updated signal cycle interval to {signal_cycle_interval} seconds (manual_override={update_data['manual_override']})")
     
     settings = await db.system_settings.find_one({"id": "system_settings"}, {"_id": 0})
     return settings
+
+@api_router.get("/schedules")
+async def get_schedules():
+    """Get all schedules"""
+    schedules = await db.schedules.find({}, {"_id": 0}).sort("priority", -1).to_list(100)
+    return schedules
+
+@api_router.post("/schedules", response_model=Schedule)
+async def create_schedule(schedule: CreateSchedule):
+    """Create new schedule"""
+    schedule_obj = Schedule(**schedule.model_dump())
+    doc = schedule_obj.model_dump()
+    
+    await db.schedules.insert_one(doc)
+    logger.info(f"Created schedule: {schedule_obj.name}")
+    return schedule_obj
+
+@api_router.patch("/schedules/{schedule_id}")
+async def update_schedule(schedule_id: str, active: Optional[bool] = None, cycle_interval: Optional[int] = None, priority: Optional[int] = None):
+    """Update schedule"""
+    update_data = {}
+    if active is not None:
+        update_data["active"] = active
+    if cycle_interval is not None:
+        if cycle_interval < 5 or cycle_interval > 300:
+            raise HTTPException(status_code=400, detail="Cycle interval must be between 5 and 300 seconds")
+        update_data["cycle_interval"] = cycle_interval
+    if priority is not None:
+        update_data["priority"] = priority
+    
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No update data provided")
+    
+    result = await db.schedules.update_one(
+        {"id": schedule_id},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+    
+    updated = await db.schedules.find_one({"id": schedule_id}, {"_id": 0})
+    return updated
+
+@api_router.delete("/schedules/{schedule_id}")
+async def delete_schedule(schedule_id: str):
+    """Delete schedule"""
+    result = await db.schedules.delete_one({"id": schedule_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+    
+    return {"message": "Schedule deleted successfully"}
+
+@api_router.get("/schedules/current")
+async def get_current_schedule():
+    """Get currently active schedule"""
+    from datetime import datetime
+    now = datetime.now(timezone.utc)
+    current_day = now.weekday()
+    current_time = now.strftime("%H:%M")
+    
+    schedules = await db.schedules.find({
+        "active": True,
+        "days_of_week": current_day
+    }, {"_id": 0}).to_list(100)
+    
+    matching_schedules = []
+    for schedule in schedules:
+        start = schedule["start_time"]
+        end = schedule["end_time"]
+        
+        if start <= end:
+            if start <= current_time <= end:
+                matching_schedules.append(schedule)
+        else:
+            if current_time >= start or current_time <= end:
+                matching_schedules.append(schedule)
+    
+    if matching_schedules:
+        matching_schedules.sort(key=lambda x: x["priority"], reverse=True)
+        return {
+            "active_schedule": matching_schedules[0],
+            "current_interval": matching_schedules[0]["cycle_interval"],
+            "source": "schedule"
+        }
+    
+    settings = await db.system_settings.find_one({"id": "system_settings"}, {"_id": 0})
+    return {
+        "active_schedule": None,
+        "current_interval": settings.get("signal_cycle_interval", 30) if settings else 30,
+        "source": "manual" if settings and settings.get("manual_override") else "default"
+    }
+
+@api_router.post("/settings/enable-schedule")
+async def enable_schedule_mode():
+    """Disable manual override and enable schedule-based control"""
+    await db.system_settings.update_one(
+        {"id": "system_settings"},
+        {"$set": {"manual_override": False}},
+        upsert=True
+    )
+    
+    logger.info("Enabled schedule-based control")
+    return {"message": "Schedule mode enabled", "manual_override": False}
 
 @api_router.websocket("/ws/live")
 async def websocket_endpoint(websocket: WebSocket):
