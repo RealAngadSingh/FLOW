@@ -334,6 +334,7 @@ async def upload_video(file: UploadFile = File(...), intersection_id: str = Form
     if not file.filename.lower().endswith(('.mp4', '.avi', '.mov')):
         raise HTTPException(status_code=400, detail="Invalid file type. Allowed: .mp4, .avi, .mov")
     
+    tmp_path = None
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp_file:
             content = await file.read()
@@ -342,32 +343,43 @@ async def upload_video(file: UploadFile = File(...), intersection_id: str = Form
         
         cap = cv2.VideoCapture(tmp_path)
         if not cap.isOpened():
-            raise HTTPException(status_code=400, detail="Cannot open video file")
+            if tmp_path and Path(tmp_path).exists():
+                Path(tmp_path).unlink()
+            raise HTTPException(status_code=400, detail="Cannot open video file. Please upload a valid video file.")
         
         frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        fps = int(cap.get(cv2.CAP_PROP_FPS))
-        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        fps = int(cap.get(cv2.CAP_PROP_FPS)) if cap.get(cv2.CAP_PROP_FPS) > 0 else 30
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) if cap.get(cv2.CAP_PROP_FRAME_WIDTH) > 0 else 1920
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) if cap.get(cv2.CAP_PROP_FRAME_HEIGHT) > 0 else 1080
         cap.release()
         
         detections = await process_video_mock(tmp_path, intersection_id)
         
-        if background_tasks:
+        if background_tasks and tmp_path:
             background_tasks.add_task(cleanup_temp_file, tmp_path)
+        elif tmp_path and Path(tmp_path).exists():
+            Path(tmp_path).unlink()
         
         return {
             "status": "success",
             "filename": file.filename,
-            "frame_count": frame_count,
+            "frame_count": frame_count if frame_count > 0 else 1,
             "fps": fps,
             "resolution": f"{width}x{height}",
             "detections_count": len(detections),
-            "message": "Video processed successfully (mock detection)"
+            "message": "Video processed successfully (mock detection - ready for YOLO integration)"
         }
     
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error processing video: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        if tmp_path and Path(tmp_path).exists():
+            try:
+                Path(tmp_path).unlink()
+            except:
+                pass
+        raise HTTPException(status_code=500, detail=f"Error processing video: {str(e)}")
 
 async def process_video_mock(video_path: str, intersection_id: str):
     """Mock vehicle detection processing"""
