@@ -18,6 +18,8 @@ A comprehensive AI-powered traffic management platform for real-time monitoring,
 - **MongoDB Database**: Scalable data storage with demo data included
 - **RESTful API**: Comprehensive backend with 15+ endpoints
 - **Real-time Updates**: Auto-refresh dashboard every 5 seconds
+- **Automatic Signal Cycling**: Traffic lights update every 30 seconds simulating real traffic control
+- **Manual Signal Override**: Operators can manually adjust signals via the Intersections page
 - **Mock Vehicle Detection**: Prototype-ready structure for YOLO integration
 
 ## 🏗️ Architecture
