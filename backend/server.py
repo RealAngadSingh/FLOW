@@ -183,6 +183,18 @@ class UpdateIntersection(BaseModel):
     coordination_mode: Optional[str] = None
     status: Optional[str] = None
 
+class SystemSettings(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = "system_settings"
+    signal_cycle_interval: int = 30  # seconds
+
+async def get_cycle_interval():
+    """Get current signal cycle interval from database"""
+    settings = await db.system_settings.find_one({"id": "system_settings"}, {"_id": 0})
+    if settings:
+        return settings.get("signal_cycle_interval", 30)
+    return 30
+
 async def seed_demo_data():
     """Seed database with demo data"""
     existing = await db.intersections.count_documents({})
