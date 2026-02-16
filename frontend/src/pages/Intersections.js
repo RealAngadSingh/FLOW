@@ -201,47 +201,116 @@ const Intersections = () => {
             </div>
 
             {editingId === int.id ? (
-              <div className="flex space-x-2">
-                <select
-                  data-testid={`signal-select-${int.id}`}
-                  value={signalState}
-                  onChange={(e) => setSignalState(e.target.value)}
-                  className="flex-1 bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 rounded-sm px-3 py-2 text-sm"
-                >
-                  <option value="">Select signal state</option>
-                  <option value="green-ns">Green NS</option>
-                  <option value="green-ew">Green EW</option>
-                  <option value="yellow-ns">Yellow NS</option>
-                  <option value="yellow-ew">Yellow EW</option>
-                  <option value="red-ns">Red NS</option>
-                  <option value="red-ew">Red EW</option>
-                </select>
-                <button
-                  data-testid={`save-signal-btn-${int.id}`}
-                  onClick={() => handleUpdateSignal(int.id)}
-                  className="bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-sm uppercase tracking-wide text-xs px-4 py-2"
-                >
-                  Save
-                </button>
-                <button
-                  onClick={() => setEditingId(null)}
-                  className="bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 rounded-sm uppercase tracking-wide text-xs px-4 py-2"
-                >
-                  Cancel
-                </button>
+              <div className="space-y-4">
+                <div className="flex space-x-2">
+                  <select
+                    data-testid={`signal-select-${int.id}`}
+                    value={signalState}
+                    onChange={(e) => setSignalState(e.target.value)}
+                    className="flex-1 bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 rounded-sm px-3 py-2 text-sm"
+                  >
+                    <option value="">Select signal state</option>
+                    <option value="green-ns">Green NS</option>
+                    <option value="green-ew">Green EW</option>
+                    <option value="yellow-ns">Yellow NS</option>
+                    <option value="yellow-ew">Yellow EW</option>
+                    <option value="red-ns">Red NS</option>
+                    <option value="red-ew">Red EW</option>
+                  </select>
+                  <button
+                    data-testid={`save-signal-btn-${int.id}`}
+                    onClick={() => handleUpdateSignal(int.id)}
+                    className="bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-sm uppercase tracking-wide text-xs px-4 py-2"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => setEditingId(null)}
+                    className="bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 rounded-sm uppercase tracking-wide text-xs px-4 py-2"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : editingTimingId === int.id ? (
+              <div className="space-y-4">
+                <div className="text-sm font-bold uppercase tracking-wider text-zinc-500 mb-3">Edit Signal Timing</div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-xs text-zinc-500 mb-1 block">Green (seconds)</label>
+                    <input
+                      type="number"
+                      min="5"
+                      max="180"
+                      value={timingData.green}
+                      onChange={(e) => setTimingData({...timingData, green: parseInt(e.target.value)})}
+                      className="w-full bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-emerald-500 rounded-sm px-3 py-2 text-sm font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-zinc-500 mb-1 block">Yellow (seconds)</label>
+                    <input
+                      type="number"
+                      min="3"
+                      max="10"
+                      value={timingData.yellow}
+                      onChange={(e) => setTimingData({...timingData, yellow: parseInt(e.target.value)})}
+                      className="w-full bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-amber-500 rounded-sm px-3 py-2 text-sm font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-zinc-500 mb-1 block">Red (seconds)</label>
+                    <input
+                      type="number"
+                      min="5"
+                      max="180"
+                      value={timingData.red}
+                      onChange={(e) => setTimingData({...timingData, red: parseInt(e.target.value)})}
+                      className="w-full bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-red-500 rounded-sm px-3 py-2 text-sm font-mono"
+                    />
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    data-testid={`save-timing-btn-${int.id}`}
+                    onClick={() => handleUpdateTiming(int.id)}
+                    className="bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-sm uppercase tracking-wide text-xs px-4 py-2"
+                  >
+                    Save Timing
+                  </button>
+                  <button
+                    onClick={() => setEditingTimingId(null)}
+                    className="bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 rounded-sm uppercase tracking-wide text-xs px-4 py-2"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             ) : (
-              <button
-                data-testid={`edit-signal-btn-${int.id}`}
-                onClick={() => {
-                  setEditingId(int.id);
-                  setSignalState(int.current_signal_state);
-                }}
-                className="w-full bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 rounded-sm uppercase tracking-wide text-xs px-4 py-2 flex items-center justify-center"
-              >
-                <Settings className="w-4 h-4 mr-2" />
-                Adjust Signal
-              </button>
+              <div className="flex space-x-2">
+                <button
+                  data-testid={`edit-signal-btn-${int.id}`}
+                  onClick={() => {
+                    setEditingId(int.id);
+                    setSignalState(int.current_signal_state);
+                  }}
+                  className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 rounded-sm uppercase tracking-wide text-xs px-4 py-2 flex items-center justify-center"
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Adjust Signal
+                </button>
+                <button
+                  data-testid={`edit-timing-btn-${int.id}`}
+                  onClick={() => {
+                    setEditingTimingId(int.id);
+                    setTimingData(int.signal_timing);
+                  }}
+                  className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 rounded-sm uppercase tracking-wide text-xs px-4 py-2 flex items-center justify-center"
+                >
+                  <Clock className="w-4 h-4 mr-2" />
+                  Edit Timing
+                </button>
+              </div>
             )}
           </div>
         ))}
