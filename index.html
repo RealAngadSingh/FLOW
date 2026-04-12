@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartFlow AI — Real-Time Traffic Intelligence</title>
+  <meta name="description"
+    content="SmartFlow AI is an AI-powered traffic management platform offering real-time signal control, live metrics, and intelligent congestion resolution." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- CSS Files -->
+  <link rel="stylesheet" href="colors.css" />
+  <link rel="stylesheet" href="Layout.css" />
+  <link rel="stylesheet" href="cards.css" />
+
+  <style>
+    /* ---- Base ---- */
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ---- NAV ---- */
+    nav {
+      background: rgba(10, 14, 26, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color .2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .btn-nav {
+      background: var(--green);
+      color: #0a0e1a !important;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-weight: 700 !important;
+    }
+
+    /* ---- HERO ---- */
+    .hero {
+      padding: 40px 40px 80px;
+      gap: 20px;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0, 229, 160, .12) 0%, transparent 70%);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 229, 160, .1);
+      border: 1px solid rgba(0, 229, 160, .3);
+      color: var(--green);
+      font-size: .8rem;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 100px;
+      letter-spacing: .5px;
+    }
+
+    .hero h1 {
+      color: var(--text);
+      line-height: 1.12;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.15rem;
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: #0a0e1a;
+      border: none;
+      padding: 14px 36px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s;
+    }
+
+    .btn-primary:hover {
+      opacity: .88;
+      transform: translateY(-2px);
+    }
+
+    /* ---- SECTION SHELL ---- */
+    section {
+      padding: 80px 40px;
+    }
+
+    .section-label {
+      color: var(--green);
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 550px;
+      line-height: 1.7;
+      margin-bottom: 48px;
+    }
+
+    /* ---- PROBLEM CARDS ---- */
+    #problem {
+      background: #060910;
+    }
+
+    .problem-grid {
+      margin-top: 0;
+    }
+
+    .problem-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      transition: border-color .25s, transform .25s;
+    }
+
+    .problem-card:hover {
+      border-color: var(--red);
+      transform: translateY(-4px);
+    }
+
+    .problem-icon {
+      font-size: 2rem;
+      margin-bottom: 14px;
+    }
+
+    .problem-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .problem-card p {
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.6;
+    }
+
+    /* ---- SOLUTION / FEATURE CARDS ---- */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 16px 0 8px;
+    }
+
+    .feature-card p {
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.6;
+    }
+
+    .feature-icon {
+      font-size: 1.8rem;
+    }
+
+    /* ---- DEMO SECTION ---- */
+    #demo {
+      background: #060910;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .demo-panel {
+      width: 100%;
+      max-width: 900px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    /* ---- TRAFFIC LIGHT ---- */
+    .traffic-light-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .traffic-light-wrap h3 {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .traffic-light {
+      background: #1a1f2e;
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: 20px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .light {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: #1e2535;
+      border: 2px solid #2a3450;
+      transition: background .3s, box-shadow .3s;
+    }
+
+    .green-on {
+      background: #00e5a0;
+      box-shadow: 0 0 24px #00e5a0aa;
+    }
+
+    .amber-on {
+      background: #ffb800;
+      box-shadow: 0 0 24px #ffb800aa;
+    }
+
+    .red-on {
+      background: #ff4d6d;
+      box-shadow: 0 0 24px #ff4d6daa;
+    }
+
+    #phase-label {
+      font-size: .85rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--muted);
+    }
+
+    /* ---- LIVE METRICS ---- */
+    .metrics-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .metrics-wrap h3 {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .metric-row {
+      background: #0d1221;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .metric-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--green);
+      transition: all .3s;
+    }
+
+    /* ---- FOOTER ---- */
+    footer {
+      text-align: center;
+      padding: 40px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: .85rem;
+    }
+
+    footer strong {
+      color: var(--green);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── NAV ── -->
+  <nav>
+    <span class="logo">Smart<span style="color:var(--text)">Flow</span> AI</span>
+    <ul class="nav-links">
+      <li><a href="#problem">Problem</a></li>
+      <li><a href="#solution">Solution</a></li>
+      <li><a href="#demo">Live Demo</a></li>
+      <li><a href="#demo" class="btn-nav">Get Started</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <div class="hero">
+    <span class="hero-badge">🤖 AI-Powered Traffic Intelligence</span>
+    <h1>Traffic Management<br /><span>Reimagined with AI</span></h1>
+    <p>SmartFlow AI delivers real-time signal control, live congestion analytics, and predictive optimisation to keep
+      cities moving — 24/7.</p>
+    <button class="btn-primary" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">
+      See It Live ↓
+    </button>
+  </div>
+
+  <!-- ── PROBLEM ── -->
+  <section id="problem">
+    <p class="section-label">The Problem</p>
+    <h2 class="section-title">Urban Traffic is <span style="color:var(--red)">Broken</span></h2>
+    <p class="section-sub">Static signals, manual overrides, and zero real-time awareness cost billions in lost
+      productivity every year.</p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-icon">🚦</div>
+        <h3>Static Signal Timings</h3>
+        <p>Fixed cycles ignore real traffic density, causing unnecessary red-light wait times and queue build-up.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">⏱️</div>
+        <h3>Lost Commuter Hours</h3>
+        <p>The average driver wastes 54 hours per year sitting in preventable congestion. That's time and fuel gone.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">🌫️</div>
+        <h3>Rising Emissions</h3>
+        <p>Idling vehicles at red lights contribute significantly to urban CO₂ levels and air quality degradation.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">📊</div>
+        <h3>No Real-Time Data</h3>
+        <p>Traffic control centres lack live feeds — decisions are reactive, not predictive, leading to cascading jams.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SOLUTION ── -->
+  <section id="solution">
+    <p class="section-label">Our Solution</p>
+    <h2 class="section-title">Intelligent, <span style="color:var(--green)">Adaptive</span> Control</h2>
+    <p class="section-sub">SmartFlow AI fuses computer vision, machine learning, and edge computing to deliver signals
+      that think.</p>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="feature-icon">🎥</span>
+        <h3>YOLO Vehicle Detection</h3>
+        <p>Real-time camera feeds processed by YOLOv8 count vehicles per lane with &gt;95% accuracy.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🧠</span>
+        <h3>AI Signal Optimisation</h3>
+        <p>Reinforcement learning adjusts green durations dynamically based on queue length and wait time.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📡</span>
+        <h3>WebSocket Live Updates</h3>
+        <p>Dashboard receives sub-second state changes via WebSocket — no polling, no lag.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🗺️</span>
+        <h3>Interactive Map View</h3>
+        <p>Visualise all intersections city-wide on a live map with colour-coded congestion heatmaps.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── DEMO ── -->
+  <section id="demo">
+    <p class="section-label">Live Simulation</p>
+    <h2 class="section-title">Watch It <span style="color:var(--green)">Work</span></h2>
+    <p class="section-sub">A real-time traffic light cycle running in your browser alongside simulated live metrics.</p>
+
+    <div class="demo-panel">
+
+      <!-- Traffic Light (traffic light.js) -->
+      <div class="traffic-light-wrap">
+        <h3>Signal Controller</h3>
+        <div class="traffic-light">
+          <div class="light" id="r"></div>
+          <div class="light" id="a"></div>
+          <div class="light" id="g"></div>
+        </div>
+        <span id="phase-label">INITIALISING…</span>
+      </div>
+
+      <div class="metrics-wrap">
+        <h3>Live Metrics</h3>
+        <div class="metric-row">
+          <span class="metric-label">Queue Length</span>
+          <span class="metric-value" id="qlen">—</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Avg Wait Time</span>
+          <span class="metric-value" id="wait">—</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Vehicles Detected</span>
+          <span class="metric-value" id="vcnt">—</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+  <footer>
+    <p>· <strong>SmartFlow AI</strong> · Real-Time Traffic Intelligence Platform</p>
+  </footer>
+  <script src="traffic light.js"></script>
+  <script src="live metrics.js"></script>
+
+</body>
+
+</html>

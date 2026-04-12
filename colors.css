@@ -1,0 +1,24 @@
+:root {
+    --bg: #0a0e1a;
+    --card: #111827;
+    --border: #1f2d45;
+    --green: #00e5a0;
+    --amber: #ffb800;
+    --red: #ff4d6d;
+    --text: #e2e8f0;
+    --muted: #64748b;
+
+}
+
+.logo {
+    color: var(--green);
+}
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+
+h1 span {
+    color: var(--green);
+}
